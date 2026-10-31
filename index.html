@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>End CPS</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #090b12;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+  background: #151925;
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid #30394d;
+}
+
+h1 { color: #8b5cf6; }
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 25px 0;
+}
+
+.stat {
+  background: #222a3b;
+  padding: 15px;
+  border-radius: 12px;
+  width: 45%;
+}
+
+.number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #a78bfa;
+}
+
+button, select {
+  border: 0;
+  border-radius: 10px;
+  padding: 13px;
+  margin: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#clickButton {
+  width: 100%;
+  padding: 35px;
+  background: #7c3aed;
+  color: white;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+#clickButton:active {
+  transform: scale(0.96);
+  background: #5b21b6;
+}
+
+#reset {
+  background: #dc2626;
+  color: white;
+}
+
+select {
+  background: #222a3b;
+  color: white;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>⚡ END CPS</h1>
+  <p>Test your clicking speed!</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="number" id="cps">0.0</div>
+      <div>CPS</div>
+    </div>
+    <div class="stat">
+      <div class="number" id="total">0</div>
+      <div>Total Clicks</div>
+    </div>
+  </div>
+
+  <p>Timer mode</p>
+  <select id="duration">
+    <option value="1">1 Second</option>
+    <option value="5">5 Seconds</option>
+    <option value="10" selected>10 Seconds</option>
+    <option value="30">30 Seconds</option>
+  </select>
+
+  <h2 id="timer">10.0</h2>
+
+  <button id="clickButton">CLICK HERE!</button>
+
+  <p id="status">Click the button to start!</p>
+
+  <button id="reset">Reset</button>
+</div>
+
+<script>
+let clicks = 0;
+let running = false;
+let finished = false;
+let startTime = 0;
+let timerInterval;
+let duration = 10;
+
+const clickButton = document.getElementById("clickButton");
+const cpsDisplay = document.getElementById("cps");
+const totalDisplay = document.getElementById("total");
+const timerDisplay = document.getElementById("timer");
+const statusDisplay = document.getElementById("status");
+const durationSelect = document.getElementById("duration");
+
+function reset() {
+  clearInterval(timerInterval);
+  clicks = 0;
+  running = false;
+  finished = false;
+  duration = Number(durationSelect.value);
+
+  cpsDisplay.textContent = "0.0";
+  totalDisplay.textContent = "0";
+  timerDisplay.textContent = duration.toFixed(1);
+  statusDisplay.textContent = "Click the button to start!";
+}
+
+clickButton.addEventListener("click", () => {
+  if (finished) return;
+
+  if (!running) {
+    running = true;
+    startTime = Date.now();
+    statusDisplay.textContent = "Click as fast as you can!";
+
+    timerInterval = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000;
+      const remaining = Math.max(0, duration - elapsed);
+
+      timerDisplay.textContent = remaining.toFixed(1);
+      cpsDisplay.textContent =
+        (clicks / Math.max(elapsed, 0.001)).toFixed(1);
+
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        running = false;
+        finished = true;
+        timerDisplay.textContent = "0.0";
+        cpsDisplay.textContent = (clicks / duration).toFixed(1);
+        statusDisplay.textContent = "Test finished! Great job!";
+      }
+    }, 30);
+  }
+
+  clicks++;
+  totalDisplay.textContent = clicks;
+});
+
+document.getElementById("reset").addEventListener("click", reset);
+durationSelect.addEventListener("change", reset);
+
+reset();
+</script>
+
+</body>
+</html>
